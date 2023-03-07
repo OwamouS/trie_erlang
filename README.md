@@ -14,14 +14,14 @@ new_trie() ->
 trie_append([], V, Node) ->
   #node{value = V, children = Node#node.children};
 trie_append([H | T], V, Node) ->
-  Children = Node#node.children,
-  case dict:find(H, Children) of
+  TrieDict_Children = Node#node.children,
+  case dict:find(H, TrieDict_Children) of
     error ->
       Leaf = trie_append(T, V, new_trie()),
-      #node{children = dict:store(H, Leaf, Children)};
+      #node{children = dict:store(H, Leaf, TrieDict_Children)};
     {ok, Leaf} ->
       Leaf1 = trie_append(T, V, Leaf),
-      #node{children = dict:store(H, Leaf1, Children)}
+      #node{children = dict:store(H, Leaf1, TrieDict_Children)}
   end.
 ```
 Удалить ноду
@@ -30,17 +30,17 @@ trie_append([H | T], V, Node) ->
 trie_erase([], Node) ->
   #node{value = undefined, children = Node#node.children};
 trie_erase([H | T], Node) ->
-  Children = Node#node.children,
-  case dict:find(H, Children) of
+  TrieDict_Children = Node#node.children,
+  case dict:find(H, TrieDict_Children) of
     error ->
       Node;
     {ok, Leaf} ->
       Leaf1 = trie_erase(T, Leaf),
       case dict:is_empty(Leaf1#node.children) andalso Leaf1#node.value == undefined of
         true ->
-          #node{children = dict:erase(H, Children)};
+          #node{children = dict:erase(H, TrieDict_Children)};
         false ->
-          #node{children = dict:store(H, Leaf1, Children)}
+          #node{children = dict:store(H, Leaf1, TrieDict_Children)}
       end
   end.
 ```
@@ -50,8 +50,8 @@ trie_erase([H | T], Node) ->
 trie_search([], Node) ->
   Node#node.value;
 trie_search([H | T], Node) ->
-  Children = Node#node.children,
-  case dict:find(H, Children) of
+  TrieDict_Children = Node#node.children,
+  case dict:find(H, TrieDict_Children) of
     error ->
       undefined;
     {ok, Leaf} ->
@@ -64,8 +64,8 @@ trie_search([H | T], Node) ->
 foldl(Fun, Acc, Node) ->
   case Node#node.value of
     undefined ->
-      Children = Node#node.children,
-      dict:fold(fun(_, Leaf, Acc1) -> foldl(Fun, Acc1, Leaf) end, Acc, Children);
+      TrieDict_Children = Node#node.children,
+      dict:fold(fun(_, Leaf, Acc1) -> foldl(Fun, Acc1, Leaf) end, Acc, TrieDict_Children);
     V ->
       Fun(V, Acc)
   end.
@@ -76,7 +76,7 @@ foldl(Fun, Acc, Node) ->
 trie_filter(Predicate, Node) ->
   case Node#node.value of
     undefined ->
-      Children = Node#node.children,
+      TrieDict_Children = Node#node.children,
       NewChildren = dict:fold(
         fun(Key, Leaf, Acc) ->
           FilteredLeaf = trie_filter(Predicate, Leaf),
@@ -84,7 +84,7 @@ trie_filter(Predicate, Node) ->
             true -> Acc;
             false -> dict:store(Key, FilteredLeaf, Acc)
           end
-        end, dict:new(), Children),
+        end, dict:new(), TrieDict_Children),
       #node{children = NewChildren};
     V ->
       case Predicate(V) of
@@ -97,19 +97,19 @@ trie_filter(Predicate, Node) ->
 -----
 ```
 trie_merge(Tree1, Tree2) ->
-  #node{value = V, children = Children} = Tree1,
+  #node{value = V, children = TrieDict_Children} = Tree1,
   #node{value = _Value2, children = Children2} = Tree2,
   case V of
     undefined ->
       NewChildren = dict:fold(
         fun(Key, Child2, Acc) ->
-          case dict:find(Key, Children) of
+          case dict:find(Key, TrieDict_Children) of
             error ->
               dict:store(Key, Child2, Acc);
             {ok, Child1} ->
               dict:store(Key, trie_merge(Child1, Child2), Acc)
           end
-        end, Children, Children2),
+        end, TrieDict_Children, Children2),
       #node{value = undefined, children = NewChildren};
     _ ->
       Tree1
