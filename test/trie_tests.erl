@@ -16,10 +16,10 @@ trie_merge/2
 
 %% Insert/Search
 insert_search_test() ->
-  _Trie = trie:trie_append("a", 42, trie:new_trie()),
-  _Trie1 = trie:trie_append("bb", 43, _Trie),
-  ?assertEqual(43, trie:trie_search("bb", _Trie1)),
-  ?assertEqual(42, trie:trie_search("a", _Trie)).
+  Trie = trie:trie_append("a", 42, trie:new_trie()),
+  Trie1 = trie:trie_append("bb", 43, Trie),
+  ?assertEqual(43, trie:trie_search("bb", Trie1)),
+  ?assertEqual(42, trie:trie_search("a", Trie)).
 
 %% Erase
 erase_test() ->
