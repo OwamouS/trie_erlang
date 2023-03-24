@@ -1,0 +1,1 @@
+-record(node, {value = undefined, leaf = dict:new()}).
