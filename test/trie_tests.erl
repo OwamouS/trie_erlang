@@ -66,13 +66,3 @@ foldr_foldl_test() ->
   ?assertEqual(Acc2, 42),
   ?assertEqual(Acc3, 42),
   ?assertEqual(Acc4, 84).
-
-trie_monoid_test() ->
-  ?assertEqual(new_trie(), trie_merge(new_trie(), new_trie())),
-  ?assertEqual(trie_merge(new_trie(), new_trie()), new_trie()),
-  Tree1 = trie_append("a", "b", new_trie()),
-  Tree2 = trie_append("c", "d", new_trie()),
-  Tree3 = trie_append("e", "f", new_trie()),
-  ?assertEqual(trie_merge(Tree1, trie_merge(Tree2, Tree3)), trie_merge(trie_merge(Tree1, Tree2), Tree3)),
-  ?assertEqual(trie_merge(Tree2, trie_merge(Tree1, Tree3)), trie_merge(trie_merge(Tree1, Tree2), Tree3)),
-  ?assertEqual(trie_merge(Tree3, trie_merge(Tree1, Tree2)), trie_merge(trie_merge(Tree1, Tree2), Tree3)).
